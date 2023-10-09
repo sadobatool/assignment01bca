@@ -1,4 +1,4 @@
-package main
+package assignment01bca
 
 import (
 	"crypto/sha256"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// This is a Block representing a single block in blockchain.
+// Block represents a single block in the blockchain.
 type Block struct {
 	Transaction  string
 	Nonce        int
@@ -15,35 +15,32 @@ type Block struct {
 	Hash         string
 }
 
-// The entire blockchain.
+// Blockchain is a slice of blocks representing the entire blockchain.
 var Blockchain []Block
 
-// Calculates the hash of a block
+// CreateHash calculates the hash of a block based on its content.
 func CreateHash(b Block) string {
 	data := fmt.Sprintf("%s%d%s", b.Transaction, b.Nonce, b.PreviousHash)
 	hash := sha256.Sum256([]byte(data))
 	return fmt.Sprintf("%x", hash)
 }
 
-// Creating  new block with a random nonce between 1 and 1000 (limit set) and then adding it to blockchain
+// NewBlock creates a new block with a random nonce between 1 and 1000 (inclusive)
+// and appends it to the blockchain.
 func NewBlock(transaction string, previousHash string) {
-	// Seed generating random number with the current time
-	rand.Seed(time.Now().UnixNano())
-	//nonce limit is set here
-	nonce := rand.Intn(1000) + 1
-
+	rand.Seed(time.Now().UnixNano()) // Seed the random number generator with the current time
+	nonce := rand.Intn(1000) + 1     // Generate a random nonce between 1 and 1000
 	newBlock := &Block{
 		Transaction:  transaction,
 		Nonce:        nonce,
 		PreviousHash: previousHash,
 	}
-
 	newBlock.Hash = CreateHash(*newBlock)
 	Blockchain = append(Blockchain, *newBlock)
 }
 
-// Display all blocks in the blockchain.
-func Display() {
+// DisplayBlocks prints all blocks in the blockchain.
+func DisplayBlocks() {
 	for i, block := range Blockchain {
 		fmt.Printf("Block %d\n", i)
 		fmt.Printf("Transaction: %s\n", block.Transaction)
@@ -55,7 +52,7 @@ func Display() {
 }
 
 func main() {
-	// Generation of first block i.e 1st one.
+	// Create the genesis block (the first block).
 	genesisBlock := Block{
 		Transaction:  "Genesis Transaction(First Transaction)",
 		Nonce:        0,
@@ -67,7 +64,7 @@ func main() {
 	// Read user input for transactions and create new blocks.
 	for {
 		var transaction string
-		fmt.Print("Enter a transaction ('q' to quit): ")
+		fmt.Print("Enter a transaction (or 'q' to quit): ")
 		fmt.Scanln(&transaction)
 
 		if transaction == "q" {
@@ -77,9 +74,10 @@ func main() {
 		NewBlock(transaction, Blockchain[len(Blockchain)-1].Hash)
 	}
 
-	Display()
+	// Display all blocks in the blockchain.
+	DisplayBlocks()
 
-	//user press enter to exit the code
-	fmt.Println("Press Enter to exit")
+	// Wait for user to press Enter before exiting.
+	fmt.Println("Press Enter to exit...")
 	fmt.Scanln()
 }
